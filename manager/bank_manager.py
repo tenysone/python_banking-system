@@ -3,6 +3,8 @@ import random
 
 from exceptions import BankingException
 from models.transaction import Transaction
+from utils.reports import report_balances_by_type, report_total_deposits_withdrawals, below_minimum, \
+    counts_and_amounts_by_type
 
 
 class BankManager:
@@ -86,16 +88,46 @@ class BankManager:
 
     # ===================== NOT YET IMPLEMENTED (6-9) =====================
     def process_month_end(self):
-        raise NotImplementedError
+        results = []
+        for account in self.__accounts.values():
+            result = account.month_end_process()
+            if result is not None:
+                transaction_type, amount = result
+                transaction = self.__record(
+                    transaction_type,
+                    amount,
+                    account,
+                    None,
+                    "SUCCESS"
+                )
+                results.append(transaction)
+        return results
 
     def search_account(self, account_number: str):
-        raise NotImplementedError
+        return self.get_account(account_number)
 
     def get_statement(self, account_number: str):
-        raise NotImplementedError
+        account = self.get_account(account_number)
+        statement = []
+        for transaction in self.__transactions:
+            if transaction.involves(account.account_number):
+                statement.append(transaction)
+        return statement
 
-    def generate_reports(self):
-        raise NotImplementedError
+    def generate_reports(self, report_type: int):
+        if report_type == 1:
+            return report_balances_by_type(self.__accounts)
+
+        elif report_type == 2:
+            return report_total_deposits_withdrawals(self.__transactions)
+
+        elif report_type == 3:
+            return below_minimum(self.__accounts)
+
+        elif report_type == 4:
+            return counts_and_amounts_by_type(self.__transactions)
+
+        raise BankingException("Invalid report type.", "INVALID INPUT")
 
     def get_all_accounts(self):
         return self.__accounts
