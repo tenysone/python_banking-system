@@ -16,7 +16,7 @@ class BankAccount(ABC):
     # Tinatanggihan ang zero, negative, nan at inf bago magbago ang balance
     @staticmethod
     def _validate_amount(amount: float):
-        if not math.isfinite(amount) or amount <= 0:
+        if amount <= 0:
             raise BankingException("Amount must be a valid number greater than zero.", "INVALID AMOUNT")
 
     #Changer lang to sa private data (balance)
