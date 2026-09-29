@@ -1,51 +1,64 @@
-import uuid
 
 
-class Transaction:
-    def __init__(self, tx_type: str, amount: float, source_account, target_account=None):
-        self.__ref = str(uuid.uuid4())[:8].upper()
-        self.__type = tx_type
+# Relationship class - may hawak na reference sa mismong account objects
+class Transaction():
+    def __init__(self, ref: str, type: str, amount: float, source_account, target_account, status: str):
+        self.__ref = ref
+        self.__type = type
         self.__amount = amount
-        self.__source = source_account
-        self.__target = target_account
-        self.__status = "PENDING"
-        self.__balance_after = None
+        self.__source_account = source_account  # account object kung saan galing (None kung deposit)
+        self.__target_account = target_account  # account object kung saan papunta (None kung withdraw)
+        self.__status = status
+        # Resulting balances pagkatapos ng transaction
+        self.__source_balance = source_account.balance if source_account else None
+        self.__target_balance = target_account.balance if target_account else None
 
-    def complete(self, balance_after: float):
-        self.__status = "SUCCESS"
-        self.__balance_after = balance_after
-
-    def fail(self):
-        self.__status = "FAILED"
-
+    #String
     @property
     def ref(self):
         return self.__ref
 
+    #String - DEPOSIT, WITHDRAW, TRANSFER, INTEREST, SERVICE CHARGE, OVERDRAFT FEE
     @property
-    def tx_type(self):
+    def type(self):
         return self.__type
 
+    #Float
     @property
     def amount(self):
         return self.__amount
 
+    #String - account number ng source (None kung wala)
+    @property
+    def source(self):
+        return self.__source_account.account_number if self.__source_account else None
+
+    #String - account number ng target (None kung wala)
+    @property
+    def target(self):
+        return self.__target_account.account_number if self.__target_account else None
+
+    #String - SUCCESS or FAILED
     @property
     def status(self):
         return self.__status
 
-    @property
-    def source_account(self):
-        return self.__source
+    #Float - balance ng isang account pagkatapos ng transaction na ito
+    def balance_for(self, account_number: str):
+        if account_number == self.source:
+            return self.__source_balance
+        if account_number == self.target:
+            return self.__target_balance
+        return None
 
-    @property
-    def target_account(self):
-        return self.__target
+    #Bool
+    def is_success(self):
+        return self.__status == "SUCCESS"
 
-    @property
-    def balance_after(self):
-        return self.__balance_after
+    #Bool - kasali ba ang account na ito (source o target) sa transaction
+    def involves(self, account_number: str):
+        return account_number in (self.source, self.target)
+
 
     def __str__(self):
-        return (f"TXN#{self.__ref} | {self.__type} | {self.__amount:,.2f} "
-                f"| {self.__status} | Balance After: {self.__balance_after}")
+        return f"{self.__ref} | {self.__type} | ₱{self.__amount:,.2f} | {self.__status}"
