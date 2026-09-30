@@ -1,4 +1,3 @@
-import math
 from abc import ABC, abstractmethod
 
 from exceptions import BankingException
@@ -13,11 +12,11 @@ class BankAccount(ABC):
         self.__customer_id = customer_id
         self.__balance = 0.0
 
-    # Tinatanggihan ang zero, negative, nan at inf bago magbago ang balance
+    # Tinatanggihan ang zero at negative bago magbago ang balance
     @staticmethod
     def _validate_amount(amount: float):
         if amount <= 0:
-            raise BankingException("Amount must be a valid number greater than zero.", "INVALID AMOUNT")
+            raise BankingException("Amount must be greater than zero.", "INVALID AMOUNT")
 
     #Changer lang to sa private data (balance)
     def _credit(self, amount: float):

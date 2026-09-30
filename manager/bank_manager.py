@@ -1,4 +1,3 @@
-import math
 import random
 
 from exceptions import BankingException
@@ -42,8 +41,8 @@ class BankManager:
         customer = self.get_customer(account.customer_id)
         if self.has_account(account.account_number):
             raise BankingException(f"Account number {account.account_number} already exists.", "DUPLICATE")
-        if not math.isfinite(initial_deposit) or initial_deposit < 0:
-            raise BankingException("Initial deposit must be a valid number and cannot be negative.", "INVALID AMOUNT")
+        if initial_deposit < 0:
+            raise BankingException("Initial deposit cannot be negative.", "INVALID AMOUNT")
         if initial_deposit < account.MINIMUM_BALANCE:
             raise BankingException(f"{account.account_type} account needs at least ₱{account.MINIMUM_BALANCE:,.2f} to open.", "INVALID AMOUNT")
 
